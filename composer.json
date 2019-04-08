@@ -1,5 +1,8 @@
 {
     "name": "mariya/gendiff",
+    "bin": [
+        "bin/gendiff"
+    ],
     "description": "The second PHP project, utility to find differences in configuration files.",
     "keywords": ["gendiff", "Console", "PHP", "project", "difference", "file"],
     "type": "project",
