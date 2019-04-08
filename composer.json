@@ -9,6 +9,7 @@
             "email": "dolmatovam0104@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
     "scripts": {
         "phpcs": "phpcs"
     },
