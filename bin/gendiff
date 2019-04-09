@@ -1,8 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+use function Gendiff\Differ\genDiff;
+
 $autoloadPath1 = __DIR__ . '/../../../autoload.php';
 $autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
+
 if (file_exists($autoloadPath1)) {
     require_once $autoloadPath1;
 } else {
@@ -22,4 +25,7 @@ Options:
 DOC;
 
 Docopt::handle($doc);
+
+$diff = genDiff($argv[1], $argv[2]);
+print_r($diff);
 
