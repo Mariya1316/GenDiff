@@ -2,15 +2,15 @@
 
 namespace Gendiff\Parser;
 
-function pars($data, $dataType)
+function parse($data, $dataType)
 {
-    if ($dataType = 'json') {
+    if ($dataType === 'json') {
         $resultDecode = json_decode($data, true);
         if ($resultDecode === null) {
-            return 'Decoding error, recheck json data';
+            throw new \Exception('Decoding error, recheck json data');
         }
         return $resultDecode;
     } else {
-        return 'Parsing is only possible for data type "json"';
+        throw new \Exception('Parsing is only possible for data type json');
     }
 }

@@ -1,1 +1,1 @@
-C:37:"PHPUnit\Runner\DefaultTestResultCache":184:{a:2:{s:7:"defects";a:1:{s:32:"Gendiff\Tests\JsonTest::testJson";i:3;}s:5:"times";a:2:{s:32:"Gengiff\Tests\JsonTest::testJson";d:0.002;s:32:"Gendiff\Tests\JsonTest::testJson";d:0.002;}}}
+C:37:"PHPUnit\Runner\DefaultTestResultCache":136:{a:2:{s:7:"defects";a:1:{s:32:"Gendiff\Tests\JsonTest::testJson";i:3;}s:5:"times";a:1:{s:32:"Gendiff\Tests\JsonTest::testJson";d:0.002;}}}

@@ -2,8 +2,8 @@
 
 namespace Gendiff\Differ;
 
-use function Gendiff\Parser\pars;
-use function Funct\Collection\merge;
+use function Gendiff\Parser\parse;
+use function Funct\Collection\intersection;
 
 function checkFile($pathToFile)
 {
@@ -11,60 +11,66 @@ function checkFile($pathToFile)
         if (is_readable($pathToFile)) {
             return true;
         } else {
-            return "File {$pathToFile} is not readable";
+            throw new \Exception("File {$pathToFile} is not readable");
         }
     } else {
-        return "File {$pathToFile} does not exist";
+        throw new \Exception("File {$pathToFile} does not exist");
     }
 }
 
 function compareData($data)
 {
     $unchangedData = array_intersect_assoc($data[0], $data[1]);
-    $unchangedDataNew = array_map(function ($key, $value) {
-        return "{$key}: {$value}    ";
+    $addedData = array_diff_key($data[1], $data[0]);
+    $deletedData = array_diff_key($data[0], $data[1]);
+    $changedDataBefore = array_diff_key(array_intersect_key($data[0], $data[1]), $unchangedData);
+    $changedDataAfter = array_diff_key(array_intersect_key($data[1], $data[0]), $unchangedData);
+
+    $unchangedDataInString = array_map(function ($key, $value) {
+        return "    {$key}: {$value}";
     }, array_keys($unchangedData), array_values($unchangedData));
-    
-    $addedData = array_diff_assoc($data[1], $data[0]);
-    $addedDataNew = array_map(function ($key, $value) {
-        return "{$key}: {$value}  + ";
+        
+    $addedDataInString = array_map(function ($key, $value) {
+        return "  + {$key}: {$value}";
     }, array_keys($addedData), array_values($addedData));
 
-    $deletedAndChangedData = array_diff_assoc($data[0], $data[1]);
-    $deletedAndChangedDataNew = array_map(function ($key, $value) {
-        return "{$key}: {$value}  - ";
-    }, array_keys($deletedAndChangedData), array_values($deletedAndChangedData));
+    $deletedDataInString = array_map(function ($key, $value) {
+        return "  - {$key}: {$value}";
+    }, array_keys($deletedData), array_values($deletedData));
     
-    $mergedData = [];
-    merge($mergedData, $unchangedDataNew, $addedDataNew, $deletedAndChangedDataNew);
-    sort($mergedData);
-    $result = array_map(function ($string) {
-        return substr($string, strlen($string) - 4, 4) . substr($string, 0, strlen($string) - 4);
-    }, $mergedData);
+    $changedDataBeforeInString = array_map(function ($key, $value) {
+        return "  - {$key}: {$value}";
+    }, array_keys($changedDataBefore), array_values($changedDataBefore));
+    
+    $changedDataAfterInString = array_map(function ($key, $value) {
+        return "  + {$key}: {$value}";
+    }, array_keys($changedDataAfter), array_values($changedDataAfter));
+
+    $result = array_merge(
+        $unchangedDataInString,
+        $changedDataBeforeInString,
+        $changedDataAfterInString,
+        $deletedDataInString,
+        $addedDataInString
+    );
     array_unshift($result, '{');
     $result[] = "}\n";
 
     return implode("\n", $result);
 }
 
-function genDiff($pathToFile1, $pathToFile2)
+function genDiff($filePath1, $filePath2)
 {
-    $files = [$pathToFile1, $pathToFile2];
+    $filePaths = [$filePath1, $filePath2];
     $dataType = 'json';
-    $data = [];
-    foreach ($files as $file) {
-        $resultCheck = checkFile($file);
-        if ($resultCheck) {
-            $fileContent = file_get_contents($file);
-            $parsingResult = pars($fileContent, $dataType);
-            if (!is_array($parsingResult)) {
-                return $parsingResult;
-            } else {
-                $data[] = $parsingResult;
-            }
-        } else {
-            return $resultCheck;
-        }
+    try {
+        $data = array_map(function ($filePath) use ($dataType) {
+            $resultCheck = checkFile($filePath);
+            $fileContent = file_get_contents($filePath);
+            return parse($fileContent, $dataType);
+        }, $filePaths);
+        return compareData($data);
+    } catch (\Exception $e) {
+        echo $e->getMessage(), "\n";
     }
-    return compareData($data);
 }

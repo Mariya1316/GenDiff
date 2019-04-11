@@ -24,8 +24,7 @@ Options:
   --format <fmt>                Report format [default: pretty]
 DOC;
 
-Docopt::handle($doc);
-
-$diff = genDiff($argv[1], $argv[2]);
+$args = Docopt::handle($doc);
+$diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
 print_r($diff);
 
