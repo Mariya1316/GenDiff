@@ -24,7 +24,11 @@ Options:
   --format <fmt>                Report format [default: pretty]
 DOC;
 
-$args = Docopt::handle($doc);
-$diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
-print_r($diff);
+try {
+  $args = Docopt::handle($doc);
+  $diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
+  print_r($diff);
+} catch (\Exception $e) {
+  echo $e->getMessage(), "\n";
+}
 

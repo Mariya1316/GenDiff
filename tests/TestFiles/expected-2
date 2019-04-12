@@ -1,7 +1,7 @@
 {
+  - some-kay: some-value
     name: mariya/gendiff
   - type: library
   + type: project
-  - some-kay: some-value
   + key: value
 }

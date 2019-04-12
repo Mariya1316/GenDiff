@@ -3,74 +3,46 @@
 namespace Gendiff\Differ;
 
 use function Gendiff\Parser\parse;
-use function Funct\Collection\intersection;
+use function Funct\Collection\union;
 
 function checkFile($pathToFile)
 {
-    if (file_exists($pathToFile)) {
-        if (is_readable($pathToFile)) {
-            return true;
-        } else {
-            throw new \Exception("File {$pathToFile} is not readable");
-        }
-    } else {
+    if (!file_exists($pathToFile)) {
         throw new \Exception("File {$pathToFile} does not exist");
+    }
+    if (!is_readable($pathToFile)) {
+        throw new \Exception("File {$pathToFile} is not readable");
     }
 }
 
-function compareData($data)
+function compareData($data1, $data2)
 {
-    $unchangedData = array_intersect_assoc($data[0], $data[1]);
-    $addedData = array_diff_key($data[1], $data[0]);
-    $deletedData = array_diff_key($data[0], $data[1]);
-    $changedDataBefore = array_diff_key(array_intersect_key($data[0], $data[1]), $unchangedData);
-    $changedDataAfter = array_diff_key(array_intersect_key($data[1], $data[0]), $unchangedData);
-
-    $unchangedDataInString = array_map(function ($key, $value) {
-        return "    {$key}: {$value}";
-    }, array_keys($unchangedData), array_values($unchangedData));
-        
-    $addedDataInString = array_map(function ($key, $value) {
-        return "  + {$key}: {$value}";
-    }, array_keys($addedData), array_values($addedData));
-
-    $deletedDataInString = array_map(function ($key, $value) {
-        return "  - {$key}: {$value}";
-    }, array_keys($deletedData), array_values($deletedData));
-    
-    $changedDataBeforeInString = array_map(function ($key, $value) {
-        return "  - {$key}: {$value}";
-    }, array_keys($changedDataBefore), array_values($changedDataBefore));
-    
-    $changedDataAfterInString = array_map(function ($key, $value) {
-        return "  + {$key}: {$value}";
-    }, array_keys($changedDataAfter), array_values($changedDataAfter));
-
-    $result = array_merge(
-        $unchangedDataInString,
-        $changedDataBeforeInString,
-        $changedDataAfterInString,
-        $deletedDataInString,
-        $addedDataInString
-    );
-    array_unshift($result, '{');
-    $result[] = "}\n";
-
-    return implode("\n", $result);
+    $keyUnion = union(array_keys($data1), array_keys($data2));
+    $result = array_map(function ($key) use ($data1, $data2) {
+        if (!array_key_exists($key, $data1)) {
+            return "  + {$key}: {$data2[$key]}";
+        }
+        if (!array_key_exists($key, $data2)) {
+            return "  - {$key}: {$data1[$key]}";
+        }
+        if ($data1[$key] !== $data2[$key]) {
+            return "  - {$key}: {$data1[$key]}\n  + {$key}: {$data2[$key]}";
+        }
+        if ($data1[$key] === $data2[$key]) {
+            return "    {$key}: {$data1[$key]}";
+        }
+    }, $keyUnion);
+    return "{\n" . implode("\n", $result) . "\n}\n";
 }
 
 function genDiff($filePath1, $filePath2)
 {
-    $filePaths = [$filePath1, $filePath2];
     $dataType = 'json';
-    try {
-        $data = array_map(function ($filePath) use ($dataType) {
-            $resultCheck = checkFile($filePath);
-            $fileContent = file_get_contents($filePath);
-            return parse($fileContent, $dataType);
-        }, $filePaths);
-        return compareData($data);
-    } catch (\Exception $e) {
-        echo $e->getMessage(), "\n";
-    }
+    checkFile($filePath1);
+    checkFile($filePath2);
+    $fileContent1 = file_get_contents($filePath1);
+    $fileContent2 = file_get_contents($filePath2);
+    $data1 = parse($fileContent1, $dataType);
+    $data2 = parse($fileContent2, $dataType);
+    return compareData($data1, $data2);
 }
