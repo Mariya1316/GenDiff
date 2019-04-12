@@ -1,8 +1,8 @@
 language: php
 php:
   - '7.1'
-
 install:
   - make install
-
-script: make lint test
+  - make self-update
+script: 
+  - make lint test
