@@ -1,5 +1,7 @@
 {
   "timeout": 20,
   "verbose": true,
-  "host": "hexlet.io"
+  "host": "hexlet.io",
+  "index.array": [9, 8, 7, 6],
+  "assoc.array": {"key4": "value4", "key5": "value5"}
 }

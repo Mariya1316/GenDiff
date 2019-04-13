@@ -1,0 +1,11 @@
+timeout: 20
+verbose: true
+host: hexlet.io
+index.array: 
+    - one
+    - two
+    - three
+    - four
+assoc.array:
+   key4: value4
+   key5: value5
