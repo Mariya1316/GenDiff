@@ -1,10 +1,25 @@
 {
-    host: hexlet.io
-  - timeout: 50
-  + timeout: 20
-  - assoc.array: {"key4":"value4","key5":"value5","key6":"value6"}
-  + assoc.array: {"key4":"value4","key5":"value5"}
-  - proxy: 123.234.53.22
-  + verbose: 1
-  + index.array: [9, 8, 7, 6]
+    host: "hexlet.io"
+  + timeout: 50
+  - timeout: 20
+    assoc.array: {
+        key4: "value4"
+        key5: {
+            key6: "value6"
+          + key7: "value7"
+          - key7: "value8"
+        }
+    }
+  - proxy: "123.234.53.22"
+  + index.array: [9,8,7,6,5]
+  - index.array: [9,8,6,7,4]
+  + verbose: true
+  + assoc.array2: {
+        key10: {
+            key11: {
+                key12: value12
+                key13: value13
+            }
+        }
+    }
 }

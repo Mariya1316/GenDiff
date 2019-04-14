@@ -2,6 +2,7 @@
   "timeout": 20,
   "verbose": true,
   "host": "hexlet.io",
-  "index.array": [9, 8, 7, 6],
-  "assoc.array": {"key4": "value4", "key5": "value5"}
+  "index.array": [9, 8, 6, 7, 4],
+  "assoc.array": {"key4": "value4", "key5": {"key6": "value6", "key7": "value8"}},
+  "assoc.array2": {"key10": {"key11": {"key12": "value12", "key13": "value13"}}}
 }

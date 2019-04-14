@@ -3,7 +3,8 @@
 namespace Gendiff\Differ;
 
 use function Gendiff\Parser\parse;
-use function Funct\Collection\union;
+use function Gendiff\Ast\genAst;
+use function Funct\Collection\flatten;
 
 function checkFiles($filePath1, $filePath2)
 {
@@ -26,24 +27,46 @@ function checkFiles($filePath1, $filePath2)
     }
 }
 
-function compareData($data1, $data2)
+function getNestedData($dataInObject, $nestingLevel)
 {
-    $keyUnion = union(array_keys($data1), array_keys($data2));
-    $result = array_map(function ($key) use ($data1, $data2) {
-        if (!array_key_exists($key, $data1)) {
-            return "  + {$key}: {$data2[$key]}";
+    $indent = str_repeat(' ', 4 * $nestingLevel);
+    $dataInArray = get_object_vars($dataInObject);
+    $result = array_map(function ($key) use ($nestingLevel, $dataInArray) {
+        $indent = str_repeat(' ', 4 * ($nestingLevel + 1));
+        if (is_object($dataInArray[$key])) {
+            $value = getNestedData($dataInArray[$key], $nestingLevel + 1);
+        } else {
+            $value = $dataInArray[$key];
         }
-        if (!array_key_exists($key, $data2)) {
-            return "  - {$key}: {$data1[$key]}";
+        return "{$indent}{$key}: {$value}";
+    }, array_keys($dataInArray));
+    return "{\n" . implode("\n", $result) . "\n{$indent}}";
+}
+
+function genResultStructure($ast, $nestingLevel)
+{
+    $indent = str_repeat(' ', 4 * $nestingLevel);
+    $result = array_map(function ($node) use ($nestingLevel) {
+        $indent = str_repeat(' ', 4 * $nestingLevel);
+        $valueBefore = is_object($node['valueBefore']) ?
+            getNestedData($node['valueBefore'], $nestingLevel + 1) : json_encode($node['valueBefore']);
+        $valueAfter = is_object($node['valueAfter']) ?
+            getNestedData($node['valueAfter'], $nestingLevel + 1) : json_encode($node['valueAfter']);
+        switch ($node['type']) {
+            case 'added':
+                return "{$indent}  + {$node['key']}: {$valueAfter}";
+            case 'deleted':
+                return "{$indent}  - {$node['key']}: {$valueBefore}";
+            case 'unchanged':
+                return "{$indent}    {$node['key']}: {$valueBefore}";
+            case 'changed':
+                return "{$indent}  + {$node['key']}: {$valueBefore}\n{$indent}  - {$node['key']}: {$valueAfter}";
+            case 'nested':
+                $value = genResultStructure($node['children'], $nestingLevel + 1);
+                return "{$indent}    {$node['key']}: {$value}";
         }
-        if ($data1[$key] !== $data2[$key]) {
-            return "  - {$key}: {$data1[$key]}\n  + {$key}: {$data2[$key]}";
-        }
-        if ($data1[$key] === $data2[$key]) {
-            return "    {$key}: {$data1[$key]}";
-        }
-    }, $keyUnion);
-    return "{\n" . implode("\n", $result) . "\n}\n";
+    }, $ast);
+    return "{\n" . implode("\n", $result) . "\n{$indent}}";
 }
 
 function genDiff($filePath1, $filePath2)
@@ -51,7 +74,9 @@ function genDiff($filePath1, $filePath2)
     $dataType = checkFiles($filePath1, $filePath2);
     $fileContent1 = file_get_contents($filePath1);
     $fileContent2 = file_get_contents($filePath2);
-    $data1 = parse($fileContent1, $dataType);
-    $data2 = parse($fileContent2, $dataType);
-    return compareData($data1, $data2);
+    $parsingResult1 = get_object_vars(parse($fileContent1, $dataType));
+    $parsingResult2 = get_object_vars(parse($fileContent2, $dataType));
+    $ast = genAst($parsingResult1, $parsingResult2);
+    $result = genResultStructure($ast, 0);
+    return $result;
 }
