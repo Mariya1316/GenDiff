@@ -8,17 +8,11 @@ use function Funct\Collection\flatten;
 
 function checkFiles($filePath1, $filePath2)
 {
-    if (!file_exists($filePath1)) {
-        throw new \Exception("File {$filePath1} does not exist");
-    }
-    if (!file_exists($filePath2)) {
-        throw new \Exception("File {$filePath2} does not exist");
-    }
     if (!is_readable($filePath1)) {
-        throw new \Exception("File {$filePath1} is not readable");
+        throw new \Exception("File {$filePath1} is not readable or does not exist");
     }
     if (!is_readable($filePath2)) {
-        throw new \Exception("File {$filePath2} is not readable");
+        throw new \Exception("File {$filePath2} is not readable or does not exist");
     }
     if (pathinfo($filePath1, PATHINFO_EXTENSION) !== pathinfo($filePath2, PATHINFO_EXTENSION)) {
         throw new \Exception("Files have different types");
@@ -27,17 +21,18 @@ function checkFiles($filePath1, $filePath2)
     }
 }
 
+function stringify($data, $nestingLevel)
+{
+    return is_object($data) ? getNestedData($data, $nestingLevel) : json_encode($data);
+}
+
 function getNestedData($dataInObject, $nestingLevel)
 {
     $indent = str_repeat(' ', 4 * $nestingLevel);
     $dataInArray = get_object_vars($dataInObject);
     $result = array_map(function ($key) use ($nestingLevel, $dataInArray) {
         $indent = str_repeat(' ', 4 * ($nestingLevel + 1));
-        if (is_object($dataInArray[$key])) {
-            $value = getNestedData($dataInArray[$key], $nestingLevel + 1);
-        } else {
-            $value = $dataInArray[$key];
-        }
+        $value = stringify($dataInArray[$key], $nestingLevel + 1);
         return "{$indent}{$key}: {$value}";
     }, array_keys($dataInArray));
     return "{\n" . implode("\n", $result) . "\n{$indent}}";
@@ -48,10 +43,8 @@ function genResultStructure($ast, $nestingLevel)
     $indent = str_repeat(' ', 4 * $nestingLevel);
     $result = array_map(function ($node) use ($nestingLevel) {
         $indent = str_repeat(' ', 4 * $nestingLevel);
-        $valueBefore = is_object($node['valueBefore']) ?
-            getNestedData($node['valueBefore'], $nestingLevel + 1) : json_encode($node['valueBefore']);
-        $valueAfter = is_object($node['valueAfter']) ?
-            getNestedData($node['valueAfter'], $nestingLevel + 1) : json_encode($node['valueAfter']);
+        $valueBefore = stringify($node['valueBefore'], $nestingLevel + 1);
+        $valueAfter = stringify($node['valueAfter'], $nestingLevel + 1);
         switch ($node['type']) {
             case 'added':
                 return "{$indent}  + {$node['key']}: {$valueAfter}";
@@ -63,7 +56,7 @@ function genResultStructure($ast, $nestingLevel)
                 return "{$indent}  + {$node['key']}: {$valueBefore}\n{$indent}  - {$node['key']}: {$valueAfter}";
             case 'nested':
                 $value = genResultStructure($node['children'], $nestingLevel + 1);
-                return "{$indent}    {$node['key']}: {$value}";
+                return "{$indent}    {$node['key']}: {$value}{$indent}";
         }
     }, $ast);
     return "{\n" . implode("\n", $result) . "\n{$indent}}";
@@ -74,9 +67,9 @@ function genDiff($filePath1, $filePath2)
     $dataType = checkFiles($filePath1, $filePath2);
     $fileContent1 = file_get_contents($filePath1);
     $fileContent2 = file_get_contents($filePath2);
-    $parsingResult1 = get_object_vars(parse($fileContent1, $dataType));
-    $parsingResult2 = get_object_vars(parse($fileContent2, $dataType));
-    $ast = genAst($parsingResult1, $parsingResult2);
+    $data1 = get_object_vars(parse($fileContent1, $dataType));
+    $data2 = get_object_vars(parse($fileContent2, $dataType));
+    $ast = genAst($data1, $data2);
     $result = genResultStructure($ast, 0);
     return $result;
 }
