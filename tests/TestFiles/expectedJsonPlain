@@ -1,0 +1,6 @@
+Property 'timeout' was changed. From '50' to '20'
+Property 'assoc.array.key5.key7' was changed. From '"value7"' to '"value8"'
+Property 'proxy' was removed
+Property 'index.array' was changed. From '[9,8,7,6,5]' to '[9,8,6,7,4]'
+Property 'verbose' was added with value: 'true'
+Property 'assoc.array2' was added with value: 'complex value'

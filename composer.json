@@ -22,7 +22,9 @@
         "files": [
             "src/Parser.php",
             "src/Differ.php",
-            "src/Ast.php"
+            "src/Ast.php",
+            "src/Formats/Pretty.php",
+            "src/Formats/Plain.php"
         ]
     },
     "require": {

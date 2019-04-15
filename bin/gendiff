@@ -25,10 +25,10 @@ Options:
 DOC;
 
 try {
-  $args = Docopt::handle($doc);
-  $diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
-  print_r($diff);
+    $args = Docopt::handle($doc);
+    $diff = genDiff($args["<firstFile>"], $args["<secondFile>"], $args["--format"]);
+    print_r($diff);
 } catch (\Exception $e) {
-  echo $e->getMessage(), "\n";
+    echo $e->getMessage(), "\n";
 }
 
