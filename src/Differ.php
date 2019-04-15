@@ -6,6 +6,7 @@ use function Gendiff\Parser\parse;
 use function Gendiff\Ast\genAst;
 use function Gendiff\Formats\Pretty\genPrettyReport;
 use function Gendiff\Formats\Plain\genPlainReport;
+use function Gendiff\Formats\Json\genJsonReport;
 
 function checkFiles($filePath1, $filePath2)
 {
@@ -30,6 +31,16 @@ function genDiff($filePath1, $filePath2, $reportFormat = 'pretty')
     $data1 = get_object_vars(parse($fileContent1, $dataType));
     $data2 = get_object_vars(parse($fileContent2, $dataType));
     $ast = genAst($data1, $data2);
-    $result = ($reportFormat === 'plain') ? genPlainReport($ast) : genPrettyReport($ast);
+    switch ($reportFormat) {
+        case 'pretty':
+            $result = genPrettyReport($ast);
+            break;
+        case 'plain':
+            $result = genPlainReport($ast);
+            break;
+        case 'json':
+            $result = genJsonReport($ast);
+            break;
+    }
     return "{$result}\n";
 }

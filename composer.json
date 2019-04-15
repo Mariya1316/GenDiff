@@ -24,7 +24,8 @@
             "src/Differ.php",
             "src/Ast.php",
             "src/Formats/Pretty.php",
-            "src/Formats/Plain.php"
+            "src/Formats/Plain.php",
+            "src/Formats/Json.php"
         ]
     },
     "require": {
