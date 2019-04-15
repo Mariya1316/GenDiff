@@ -8,4 +8,4 @@ A PHP console utility to find differences in configuration files.
 [![Test Coverage](https://api.codeclimate.com/v1/badges/1b9f4d3e473ac5d85109/test_coverage)](https://codeclimate.com/github/Mariya1316/project-lvl2-s459/test_coverage)
 [![Build Status](https://travis-ci.org/Mariya1316/project-lvl2-s459.svg?branch=master)](https://travis-ci.org/Mariya1316/project-lvl2-s459)
 ## Installation and usage:
-[![asciicast](https://asciinema.org/a/TPJGnmSH3xWNtIZstT7YVccza.svg)](https://asciinema.org/a/TPJGnmSH3xWNtIZstT7YVccza)
+[![asciicast](https://asciinema.org/a/CPgCfVezQ6ftUlP7F19IWifjE.svg)](https://asciinema.org/a/CPgCfVezQ6ftUlP7F19IWifjE)
