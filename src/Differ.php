@@ -23,6 +23,18 @@ function checkFiles($filePath1, $filePath2)
     }
 }
 
+function switchToFormatGenerator($ast, $reportFormat)
+{
+    switch ($reportFormat) {
+        case 'pretty':
+            return genPrettyReport($ast);
+        case 'plain':
+            return genPlainReport($ast);
+        case 'json':
+            return genJsonReport($ast);
+    }
+}
+
 function genDiff($filePath1, $filePath2, $reportFormat = 'pretty')
 {
     $dataType = checkFiles($filePath1, $filePath2);
@@ -31,16 +43,6 @@ function genDiff($filePath1, $filePath2, $reportFormat = 'pretty')
     $data1 = get_object_vars(parse($fileContent1, $dataType));
     $data2 = get_object_vars(parse($fileContent2, $dataType));
     $ast = genAst($data1, $data2);
-    switch ($reportFormat) {
-        case 'pretty':
-            $result = genPrettyReport($ast);
-            break;
-        case 'plain':
-            $result = genPlainReport($ast);
-            break;
-        case 'json':
-            $result = genJsonReport($ast);
-            break;
-    }
+    $result = switchToFormatGenerator($ast, $reportFormat);
     return "{$result}\n";
 }
