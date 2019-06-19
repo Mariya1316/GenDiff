@@ -1,6 +1,6 @@
 # GenDiff
 [![Maintainability](https://api.codeclimate.com/v1/badges/1b9f4d3e473ac5d85109/maintainability)](https://codeclimate.com/github/Mariya1316/project-lvl2-s459/maintainability)
-[![Build Status](https://travis-ci.org/Mariya1316/project-lvl2-s459.svg?branch=master)](https://travis-ci.org/Mariya1316/project-lvl2-s459)
+[![Build Status](https://travis-ci.org/Mariya1316/GenDiff.svg?branch=master)](https://travis-ci.org/Mariya1316/GenDiff)
 
 A PHP console utility to find differences in configuration files.
 ### Utility features:
@@ -16,7 +16,6 @@ $ composer require mariya/gendiff
 Get help:
 ```
 $ gendiff -h
-
 ```
 Generate the difference between two files (`json`, `yaml` or `ini`):
 ```
@@ -41,7 +40,6 @@ $ gendiff --format plain before.json after.json
 Property 'timeout' was changed. From '50' to '20'
 Property 'proxy' was removed
 Property 'verbose' was added with value: 'true'
-
 ```
 In addition, you can get the report in `json` format using the appropriate option value:
 ```
