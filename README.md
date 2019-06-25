@@ -17,7 +17,7 @@ Get help:
 ```
 $ gendiff -h
 ```
-Generate the difference between two files (`json`, `yaml` or `ini`):
+Generate the difference between two files (`json`, `yaml`):
 ```
 $ gendiff before.json after.json
 ```
